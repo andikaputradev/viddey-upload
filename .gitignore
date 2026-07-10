@@ -1,0 +1,37 @@
+# Dependencies
+/node_modules
+/.pnpm-store
+
+# Next.js build outputs
+/.next/
+/out/
+
+# Production build artifact
+/build
+/dist
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment variables (Sangat penting agar API Key/Secret tidak bocor)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
