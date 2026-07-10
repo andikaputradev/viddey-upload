@@ -90,7 +90,7 @@ export async function startServer() {
 
   try {
     await server.listen({ port: config.server.port, host: config.server.host })
-  } catch (err) {
+  } catch (err: unknown) {
     server.log.error({ err: toMessage(err) }, 'Failed to start server')
     process.exit(1)
   }
@@ -99,7 +99,7 @@ export async function startServer() {
     server.log.info({ signal }, 'Shutdown signal received')
     try {
       await server.close()
-    } catch (err) {
+    } catch (err: unknown) {
       server.log.error({ err: toMessage(err) }, 'Error during shutdown')
     }
     process.exit(0)
@@ -107,11 +107,11 @@ export async function startServer() {
 
   process.on('SIGTERM', () => { void shutdown('SIGTERM') })
   process.on('SIGINT', () => { void shutdown('SIGINT') })
-  process.on('uncaughtException', (err) => {
+  process.on('uncaughtException', (err: unknown) => {
     server.log.fatal({ err: toMessage(err) }, 'Uncaught exception')
     process.exit(1)
   })
-  process.on('unhandledRejection', (reason) => {
+  process.on('unhandledRejection', (reason: unknown) => {
     server.log.fatal({ reason: toMessage(reason) }, 'Unhandled promise rejection')
     process.exit(1)
   })
