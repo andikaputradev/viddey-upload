@@ -57,13 +57,14 @@ export async function buildServer() {
     },
   })
 
-  fastify.setErrorHandler((error, request, reply) => {
-    request.log.error({ err: toMessage(error), stack: error.stack }, 'Unhandled error')
-    const status = error.statusCode ?? 500
+  fastify.setErrorHandler((error: unknown, request, reply) => {
+    const errObj = error as any
+    request.log.error({ err: toMessage(errObj), stack: errObj.stack }, 'Unhandled error')
+    const status = errObj.statusCode ?? 500
     void reply.status(status).send({
       ok: false,
-      error: status >= 500 ? 'Internal server error' : error.message,
-      code: error.code ?? 'INTERNAL_ERROR',
+      error: status >= 500 ? 'Internal server error' : errObj.message,
+      code: errObj.code ?? 'INTERNAL_ERROR',
     })
   })
 
@@ -90,8 +91,8 @@ export async function startServer() {
 
   try {
     await server.listen({ port: config.server.port, host: config.server.host })
-  } catch (err: unknown) {
-    server.log.error({ err: toMessage(err) }, 'Failed to start server')
+  } catch (listenError: unknown) {
+    server.log.error({ err: toMessage(listenError) }, 'Failed to start server')
     process.exit(1)
   }
 
@@ -99,20 +100,20 @@ export async function startServer() {
     server.log.info({ signal }, 'Shutdown signal received')
     try {
       await server.close()
-    } catch (err: unknown) {
-      server.log.error({ err: toMessage(err) }, 'Error during shutdown')
+    } catch (shutdownError: unknown) {
+      server.log.error({ err: toMessage(shutdownError) }, 'Error during shutdown')
     }
     process.exit(0)
   }
 
   process.on('SIGTERM', () => { void shutdown('SIGTERM') })
   process.on('SIGINT', () => { void shutdown('SIGINT') })
-  process.on('uncaughtException', (err: unknown) => {
-    server.log.fatal({ err: toMessage(err) }, 'Uncaught exception')
+  process.on('uncaughtException', (uncaughtError: unknown) => {
+    server.log.fatal({ err: toMessage(uncaughtError) }, 'Uncaught exception')
     process.exit(1)
   })
-  process.on('unhandledRejection', (reason: unknown) => {
-    server.log.fatal({ reason: toMessage(reason) }, 'Unhandled promise rejection')
+  process.on('unhandledRejection', (rejectionReason: unknown) => {
+    server.log.fatal({ reason: toMessage(rejectionReason) }, 'Unhandled promise rejection')
     process.exit(1)
   })
 
